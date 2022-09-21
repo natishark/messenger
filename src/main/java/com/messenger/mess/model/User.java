@@ -14,5 +14,9 @@ public class User {
     @NotNull
     @NotBlank
     @Column(unique = true)
-    private String nickname;
+    private String login;
+
+    private String email;
+//  it seems like a bad idea but...
+    private String password;
 }
