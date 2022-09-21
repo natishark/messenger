@@ -19,11 +19,11 @@ public class RegistrationController {
 
     @PostMapping("/signup")
     public User register(@Valid @RequestBody UserSignUpDto signUpDto) throws ValidationFailedException {
-        if (!signUpDto.getPassword().equals(signUpDto.getPasswordConfirmation())) {
-            throw new ValidationFailedException("Password confirmation is incorrect");
-        }
         if (userService.existsByLogin(signUpDto.getLogin())) {
             throw new ValidationFailedException("This login is already in use");
+        }
+        if (!signUpDto.getPassword().equals(signUpDto.getPasswordConfirmation())) {
+            throw new ValidationFailedException("Password confirmation is incorrect");
         }
         return userService.saveUser(signUpDto.toUser());
     }
