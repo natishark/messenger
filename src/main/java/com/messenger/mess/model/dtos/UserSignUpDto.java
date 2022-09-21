@@ -1,11 +1,8 @@
 package com.messenger.mess.model.dtos;
 
 import com.messenger.mess.model.User;
-import lombok.Data;
-
 import javax.validation.constraints.NotBlank;
 
-@Data
 public class UserSignUpDto {
     @NotBlank(message = "Login is required.")
     private String login;
