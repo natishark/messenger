@@ -28,8 +28,8 @@ public class UserController {
         this.conversionService = conversionService;
     }
 
-    @PostMapping("/signup")
-    public User register(@Valid @RequestBody UserSignUpDto signUpDto) {
+    @PostMapping("/sign-up")
+    public User signUp(@Valid @RequestBody UserSignUpDto signUpDto) {
         if (userService.existsByLogin(signUpDto.getLogin())) {
             throw new ValidationFailedException("This login is already in use");
         }

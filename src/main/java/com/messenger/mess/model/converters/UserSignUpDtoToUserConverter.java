@@ -9,6 +9,10 @@ import org.springframework.stereotype.Component;
 public class UserSignUpDtoToUserConverter implements Converter<UserSignUpDto, User> {
     @Override
     public User convert(UserSignUpDto dto) {
-        return new User(dto.getLogin(), dto.getEmail(), dto.getPassword());
+        final var user = new User();
+        user.setLogin(dto.getLogin());
+        user.setEmail(dto.getEmail());
+        user.setPassword(dto.getPassword());
+        return user;
     }
 }
