@@ -1,6 +1,5 @@
 package com.messenger.mess.model.dtos;
 
-import com.messenger.mess.model.User;
 import javax.validation.constraints.NotBlank;
 
 public class UserSignUpDto {
@@ -26,9 +25,5 @@ public class UserSignUpDto {
 
     public String getPasswordConfirmation() {
         return passwordConfirmation;
-    }
-
-    public User toUser() {
-        return new User(login, email, password);
     }
 }

@@ -7,6 +7,7 @@ import javax.validation.constraints.NotNull;
 @Table(name = "users")
 public class User {
     public User() {}
+
     public User(String login, String email, String password) {
         this.login = login;
         this.email = email;
@@ -16,12 +17,10 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-
     @NotNull
     @Column(unique = true)
     private String login;
     private String email;
-//  it seems like a bad idea but...
     private String password;
 
     public Long getId() {
