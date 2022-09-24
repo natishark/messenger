@@ -12,6 +12,8 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
+import java.util.function.Consumer;
+
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -54,10 +56,10 @@ public class UserControllerIntegrationTests {
 
     @Test
     public void signUpUserWithEmptyLogin() throws Exception {
-        final var dto = generateRandomUserSignUpDto();
-        dto.setLogin("");
-        sendSignUpPostRequestWExpectingBadRequestAndStringMessage(dto,
-                "Login is required.");
+        signUpInvalidUserExpectingBadRequestAndMessage(
+                dto -> dto.setLogin(""),
+                "Login is required."
+        );
     }
 
     @Test
@@ -70,19 +72,24 @@ public class UserControllerIntegrationTests {
 
     @Test
     public void signUpUserWithNonVacantLogin() throws Exception {
-        final var dto = generateRandomUserSignUpDto();
-        sendSignUpPostRequest(dto)
-                .andExpect(status().isOk());
-        sendSignUpPostRequestWExpectingBadRequestAndStringMessage(dto,
-                "This login is already in use.");
+        signUpInvalidUserExpectingBadRequestAndMessage(
+                dto -> {
+                    try {
+                        sendSignUpPostRequest(dto).andExpect(status().isOk());
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
+                },
+                "This login is already in use."
+        );
     }
 
     @Test
     public void signUpUserWithWrongPasswordConfirmation() throws Exception {
-        final var dto = generateRandomUserSignUpDto();
-        dto.setPasswordConfirmation(RandomString.make(20));
-        sendSignUpPostRequestWExpectingBadRequestAndStringMessage(dto,
-                "Password confirmation is incorrect");
+        signUpInvalidUserExpectingBadRequestAndMessage(
+                dto -> dto.setPasswordConfirmation(RandomString.make(20)),
+                "Password confirmation is incorrect."
+        );
     }
 
     private UserSignUpDto generateRandomUserSignUpDto() {
@@ -94,7 +101,9 @@ public class UserControllerIntegrationTests {
         return dto;
     }
 
-    private void sendSignUpPostRequestWExpectingBadRequestAndStringMessage(UserSignUpDto dto, String message) throws Exception {
+    private void signUpInvalidUserExpectingBadRequestAndMessage(Consumer<UserSignUpDto> action, String message) throws Exception {
+        final var dto = generateRandomUserSignUpDto();
+        action.accept(dto);
         sendSignUpPostRequest(dto)
                 .andExpect(status().isBadRequest())
                 .andExpect(content().string(message));

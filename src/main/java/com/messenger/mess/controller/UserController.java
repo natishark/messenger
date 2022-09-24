@@ -34,7 +34,7 @@ public class UserController {
             throw new ValidationFailedException("This login is already in use.");
         }
         if (!signUpDto.getPassword().equals(signUpDto.getPasswordConfirmation())) {
-            throw new ValidationFailedException("Password confirmation is incorrect");
+            throw new ValidationFailedException("Password confirmation is incorrect.");
         }
         return userService.saveUser(conversionService.convert(signUpDto, User.class));
     }
