@@ -5,6 +5,8 @@ import com.messenger.mess.model.dtos.UserSignUpDto;
 import com.messenger.mess.model.repository.UserRepository;
 import net.bytebuddy.utility.RandomString;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -54,18 +56,20 @@ public class UserControllerIntegrationTests {
                 );
     }
 
-    @Test
-    public void signUpUserWithEmptyLogin() throws Exception {
+    @ParameterizedTest
+    @NullAndEmptySource
+    public void signUpUserWithEmptyLogin(String emptyLogin) throws Exception {
         signUpInvalidUserExpectingBadRequestAndMessage(
-                dto -> dto.setLogin(""),
+                dto -> dto.setLogin(emptyLogin),
                 "Login is required."
         );
     }
 
-    @Test
-    public void signUpUserWithEmptyPassword() throws Exception {
+    @ParameterizedTest
+    @NullAndEmptySource
+    public void signUpUserWithEmptyPassword(String emptyPassword) throws Exception {
         final var dto = generateRandomUserSignUpDto();
-        dto.setPassword("");
+        dto.setPassword(emptyPassword);
         sendSignUpPostRequest(dto)
                 .andExpect(status().isBadRequest());
     }
