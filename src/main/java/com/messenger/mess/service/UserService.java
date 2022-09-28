@@ -4,6 +4,8 @@ import com.messenger.mess.model.User;
 import com.messenger.mess.model.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 public class UserService {
     private final UserRepository userRepository;
@@ -18,5 +20,9 @@ public class UserService {
 
     public Boolean existsByLogin(String login) {
         return userRepository.existsByLogin(login);
+    }
+
+    public Optional<User> findByLogin(String login) {
+        return userRepository.findByLogin(login);
     }
 }
