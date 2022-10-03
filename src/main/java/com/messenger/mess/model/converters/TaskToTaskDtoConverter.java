@@ -12,8 +12,8 @@ public class TaskToTaskDtoConverter implements Converter<Task, TaskDto> {
         TaskDto taskDto = new TaskDto();
         taskDto.setTitle(task.getTitle());
         taskDto.setDescription(task.getDescription());
-        taskDto.setStartDate(task.getStartDate());
-        taskDto.setFinishDate(task.getFinishDate());
+        taskDto.setStartTime(task.getStartTime());
+        taskDto.setFinishTime(task.getFinishTime());
         return taskDto;
     }
 }

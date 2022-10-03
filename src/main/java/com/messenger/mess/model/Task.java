@@ -1,7 +1,7 @@
 package com.messenger.mess.model;
 
 import javax.persistence.*;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "tasks")
@@ -10,10 +10,11 @@ public class Task {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
     private String title;
+    @Lob
     private String description;
-    private LocalDate startDate;
-    private LocalDate finishDate;
-    @ManyToOne
+    private LocalDateTime startTime;
+    private LocalDateTime finishTime;
+    @ManyToOne(fetch = FetchType.LAZY)
     private User user;
 
     public void setId(Long id) {
@@ -32,20 +33,24 @@ public class Task {
         this.description = description;
     }
 
-    public void setStartDate(LocalDate startDate) {
-        this.startDate = startDate;
+    public void setStartTime(LocalDateTime startDate) {
+        this.startTime = startDate;
     }
 
-    public void setFinishDate(LocalDate finishDate) {
-        this.finishDate = finishDate;
+    public void setFinishTime(LocalDateTime finishDate) {
+        this.finishTime = finishDate;
     }
 
     public void setUser(User user) {
         this.user = user;
     }
 
-    public LocalDate getStartDate() {
-        return startDate;
+    public User getUser() {
+        return user;
+    }
+
+    public LocalDateTime getStartTime() {
+        return startTime;
     }
 
     public String getTitle() {
@@ -56,7 +61,7 @@ public class Task {
         return description;
     }
 
-    public LocalDate getFinishDate() {
-        return finishDate;
+    public LocalDateTime getFinishTime() {
+        return finishTime;
     }
 }

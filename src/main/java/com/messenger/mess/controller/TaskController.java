@@ -35,16 +35,15 @@ public class TaskController {
     @PostMapping("/create")
     public TaskDto create(
             @Valid @RequestBody TaskDto taskDto,
-            @RequestParam(value = "user-login") String login
+            @RequestParam(value = "login") String login
     ) {
-        Optional<User> userOptional = userService.findByLogin(login);
-        if (userOptional.isEmpty()) {
-            throw new ValidationFailedException("No such user.");
-        }
-        Task task = conversionService.convert(taskDto, Task.class);
-        taskService.saveTask(Objects.requireNonNull(task), userOptional.get());
+        User user = userService.findByLogin(login).orElseThrow(() -> new ValidationFailedException("No such user."));
+        final var task = taskService.saveTask(
+                Objects.requireNonNull(conversionService.convert(taskDto, Task.class)),
+                user
+        );
         return conversionService.convert(
-                taskService.saveTask(task, userOptional.get()),
+                task,
                 TaskDto.class
         );
     }
