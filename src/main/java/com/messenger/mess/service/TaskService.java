@@ -2,7 +2,6 @@ package com.messenger.mess.service;
 
 import com.messenger.mess.controller.exception_handling.ValidationFailedException;
 import com.messenger.mess.model.Task;
-import com.messenger.mess.model.User;
 import com.messenger.mess.model.repository.TaskRepository;
 import org.springframework.stereotype.Service;
 
@@ -16,13 +15,12 @@ public class TaskService {
         this.taskRepository = taskRepository;
     }
 
-    public Task saveTask(Task task, User user) {
-        task.setUser(user);
+    public Task saveTask(Task task) {
         if (task.getStartTime() == null) {
             task.setStartTime(LocalDateTime.now());
         }
         if (task.getStartTime().isAfter(task.getFinishTime())) {
-            throw new ValidationFailedException("Хули у тебя время начала позже времени конца...");
+            throw new ValidationFailedException("The startTime must be no later than the finishTime.");
         }
         return taskRepository.save(task);
     }

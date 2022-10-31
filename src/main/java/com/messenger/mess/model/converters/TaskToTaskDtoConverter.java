@@ -10,6 +10,7 @@ public class TaskToTaskDtoConverter implements Converter<Task, TaskDto> {
     @Override
     public TaskDto convert(Task task) {
         TaskDto taskDto = new TaskDto();
+        taskDto.setLogin(task.getUser().getLogin());
         taskDto.setTitle(task.getTitle());
         taskDto.setDescription(task.getDescription());
         taskDto.setStartTime(task.getStartTime());

@@ -14,7 +14,7 @@ public class Task {
     private String description;
     private LocalDateTime startTime;
     private LocalDateTime finishTime;
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     private User user;
 
     public void setId(Long id) {

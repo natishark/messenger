@@ -7,6 +7,8 @@ import java.time.LocalDateTime;
 
 public class TaskDto {
     @NotBlank
+    private String login;
+    @NotBlank
     @Size(max = 255, message = "Title must be not bigger than 255 symbols.")
     private String title;
     @Size(max = 5000, message = "Description must be not bigger than 5000 symbols.")
@@ -14,6 +16,14 @@ public class TaskDto {
     private LocalDateTime startTime;
     @NotNull
     private LocalDateTime finishTime;
+
+    public String getLogin() {
+        return login;
+    }
+
+    public void setLogin(String login) {
+        this.login = login;
+    }
 
     public String getTitle() {
         return title;
