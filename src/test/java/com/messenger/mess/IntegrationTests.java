@@ -11,8 +11,10 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -43,7 +45,18 @@ public class IntegrationTests {
         return user;
     }
 
-    public <T extends JpaRepository<E, Long>, E, R> void expectOkSavedAndContentFromRepository(
+    protected <E> void sendInvalidEntityExpectingBadRequestAndMessage(
+            Consumer<E> action,
+            String message,
+            Supplier<E> generator,
+            Function<E, ResultActions> sender
+    ) throws Exception {
+        final var dto = generator.get();
+        action.accept(dto);
+        expectBadRequestAndMessage(sender.apply(dto), message);
+    }
+
+    protected <T extends JpaRepository<E, Long>, E, R> void expectOkSavedAndContentFromRepository(
             ResultActions resultActions,
             T repository,
             Predicate<E> isDesiredValue,
@@ -69,10 +82,12 @@ public class IntegrationTests {
                 );
     }
 
+    protected ResultActions expectBadRequest(ResultActions resultActions) throws Exception {
+        return resultActions.andExpect(status().isBadRequest());
+    }
+
     protected void expectBadRequestAndMessage(ResultActions resultActions, String message) throws Exception {
-        resultActions
-                .andExpect(status().isBadRequest())
-                .andExpect(content().string(message));
+        expectBadRequest(resultActions).andExpect(content().string(message));
     }
 
     protected <T> ResultActions sendPostRequest(String requestUrl, T body) throws Exception {

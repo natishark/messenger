@@ -51,8 +51,7 @@ public class UserControllerIntegrationTests extends IntegrationTests {
     public void signUpUserWithEmptyPassword(String emptyPassword) throws Exception {
         final var dto = generateRandomUserSignUpDto();
         dto.setPassword(emptyPassword);
-        sendSignUpPostRequest(dto)
-                .andExpect(status().isBadRequest());
+        expectBadRequest(sendSignUpPostRequest(dto));
     }
 
     @Test
@@ -89,12 +88,19 @@ public class UserControllerIntegrationTests extends IntegrationTests {
     private void signUpInvalidUserExpectingBadRequestAndMessage (
             Consumer<UserSignUpDto> action, String message
     ) throws Exception {
-        final var dto = generateRandomUserSignUpDto();
-        action.accept(dto);
-        expectBadRequestAndMessage(sendSignUpPostRequest(dto), message);
+        sendInvalidEntityExpectingBadRequestAndMessage(
+                action,
+                message,
+                this::generateRandomUserSignUpDto,
+                this::sendSignUpPostRequest
+        );
     }
 
-    private ResultActions sendSignUpPostRequest(UserSignUpDto dto) throws Exception {
-        return sendPostRequest("/api/v1/user/sign-up", dto);
+    private ResultActions sendSignUpPostRequest(UserSignUpDto dto) {
+        try {
+            return sendPostRequest("/api/v1/user/sign-up", dto);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }

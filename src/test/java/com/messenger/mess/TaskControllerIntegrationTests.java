@@ -6,6 +6,9 @@ import com.messenger.mess.model.repository.TaskRepository;
 import com.messenger.mess.model.repository.UserRepository;
 import net.bytebuddy.utility.RandomString;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.convert.ConversionService;
@@ -14,12 +17,13 @@ import org.springframework.test.web.servlet.ResultActions;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.function.Consumer;
+import java.util.stream.Stream;
 
 public class TaskControllerIntegrationTests extends IntegrationTests {
 
     private final TaskRepository taskRepository;
     private final ConversionService conversionService;
-
 
     @Autowired
     public TaskControllerIntegrationTests(
@@ -46,6 +50,66 @@ public class TaskControllerIntegrationTests extends IntegrationTests {
         );
     }
 
+    @Test
+    public void createTaskWithWrongUser() throws Exception {
+        createInvalidTaskExpectingBadRequestAndMessage(
+                dto -> dto.setLogin(RandomString.make(20)),
+                "No such user."
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource("setNullTaskRequiredFields")
+    public void createTaskWithNullRequiredField(
+            Consumer<TaskDto> changeFieldToNull
+    ) throws Exception {
+        final var dto = generateRandomTaskDtoWithSavingRandomUser();
+        changeFieldToNull.accept(dto);
+        expectBadRequest(sendCreateTaskPostRequest(dto));
+    }
+
+    @Test
+    public void createTaskWithNullStartDateAndPastFinishDate() throws Exception {
+        createTaskWithPastFinishDate(null);
+    }
+
+    @Test
+    public void createTaskWithStartDateAfterPastFinishDate() throws Exception {
+        createTaskWithPastFinishDate(LocalDateTime.now());
+    }
+
+    public void createTaskWithPastFinishDate(LocalDateTime startTime) throws Exception {
+        createInvalidTaskExpectingBadRequestAndMessage(
+                dto -> {
+                    dto.setStartTime(startTime);
+                    dto.setFinishTime(LocalDateTime.parse("2007-12-03T10:15:30"));
+                },
+                "The startTime must be no later than the finishTime."
+        );
+    }
+
+    private static Stream<Arguments> setNullTaskRequiredFields() {
+        Consumer<TaskDto> nullLogin = d -> d.setLogin(null);
+        Consumer<TaskDto> nullTitle = d -> d.setTitle(null);
+        Consumer<TaskDto> nullFinishTime = d -> d.setFinishTime(null);
+        return Stream.of(
+                Arguments.of(nullLogin),
+                Arguments.of(nullTitle),
+                Arguments.of(nullFinishTime)
+        );
+    }
+
+    private void createInvalidTaskExpectingBadRequestAndMessage (
+            Consumer<TaskDto> action, String message
+    ) throws Exception {
+        sendInvalidEntityExpectingBadRequestAndMessage(
+                action,
+                message,
+                this::generateRandomTaskDtoWithSavingRandomUser,
+                this::sendCreateTaskPostRequest
+        );
+    }
+
     private TaskDto generateRandomTaskDtoWithSavingRandomUser() {
         TaskDto dto = new TaskDto();
         dto.setLogin(userRepository.save(generateRandomUser()).getLogin());
@@ -56,7 +120,11 @@ public class TaskControllerIntegrationTests extends IntegrationTests {
         return dto;
     }
 
-    private ResultActions sendCreateTaskPostRequest(TaskDto dto) throws Exception {
-        return sendPostRequest("/api/v1/task/create", dto);
+    private ResultActions sendCreateTaskPostRequest(TaskDto dto) {
+        try {
+            return sendPostRequest("/api/v1/task/create", dto);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }
