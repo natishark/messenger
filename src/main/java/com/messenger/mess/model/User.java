@@ -2,6 +2,7 @@ package com.messenger.mess.model;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.util.List;
 
 @Entity
 @Table(name = "users")
@@ -14,6 +15,8 @@ public class User {
     private String login;
     private String email;
     private String password;
+    @OneToMany
+    private List<Task> tasks;
 
     public Long getId() {
         return id;

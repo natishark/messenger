@@ -8,24 +8,14 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
 import java.util.function.Consumer;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest
-@AutoConfigureMockMvc
-public class UserControllerIntegrationTests {
-    private final MockMvc mockMvc;
-    private final ObjectMapper objectMapper;
-    private final UserRepository userRepository;
+public class UserControllerIntegrationTests extends IntegrationTests {
 
     @Autowired
     public UserControllerIntegrationTests(
@@ -33,27 +23,18 @@ public class UserControllerIntegrationTests {
             ObjectMapper objectMapper,
             UserRepository userRepository
     ) {
-        this.mockMvc = mockMvc;
-        this.objectMapper = objectMapper;
-        this.userRepository = userRepository;
+        super(mockMvc, objectMapper, userRepository);
     }
 
     @Test
     public void signUpCorrectUserTest() throws Exception {
         final var dto = generateRandomUserSignUpDto();
-        sendSignUpPostRequest(dto)
-                .andExpect(status().isOk())
-                .andExpect(content().string(
-                                objectMapper.writeValueAsString(
-                                        userRepository
-                                                .findAll()
-                                                .stream()
-                                                .filter(user -> user.getLogin().equals(dto.getLogin()))
-                                                .findFirst()
-                                                .orElseThrow(() -> new AssertionError("User not found"))
-                                )
-                        )
-                );
+        expectOkSavedAndContentFromRepository(
+                sendSignUpPostRequest(dto),
+                userRepository,
+                user -> user.getLogin().equals(dto.getLogin()),
+                user -> user
+        );
     }
 
     @ParameterizedTest
@@ -70,8 +51,7 @@ public class UserControllerIntegrationTests {
     public void signUpUserWithEmptyPassword(String emptyPassword) throws Exception {
         final var dto = generateRandomUserSignUpDto();
         dto.setPassword(emptyPassword);
-        sendSignUpPostRequest(dto)
-                .andExpect(status().isBadRequest());
+        expectBadRequest(sendSignUpPostRequest(dto));
     }
 
     @Test
@@ -105,19 +85,22 @@ public class UserControllerIntegrationTests {
         return dto;
     }
 
-    private void signUpInvalidUserExpectingBadRequestAndMessage(Consumer<UserSignUpDto> action, String message) throws Exception {
-        final var dto = generateRandomUserSignUpDto();
-        action.accept(dto);
-        sendSignUpPostRequest(dto)
-                .andExpect(status().isBadRequest())
-                .andExpect(content().string(message));
+    private void signUpInvalidUserExpectingBadRequestAndMessage (
+            Consumer<UserSignUpDto> action, String message
+    ) throws Exception {
+        sendInvalidEntityExpectingBadRequestAndMessage(
+                action,
+                message,
+                this::generateRandomUserSignUpDto,
+                this::sendSignUpPostRequest
+        );
     }
 
-    private ResultActions sendSignUpPostRequest(UserSignUpDto dto) throws Exception {
-        return mockMvc.perform(
-                post("/api/v1/user/sign-up")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(dto))
-        );
+    private ResultActions sendSignUpPostRequest(UserSignUpDto dto) {
+        try {
+            return sendPostRequest("/api/v1/user/sign-up", dto);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }
