@@ -16,12 +16,6 @@ public class TaskService {
     }
 
     public Task saveTask(Task task) {
-        if (task.getStartTime() == null) {
-            task.setStartTime(LocalDateTime.now());
-        }
-        if (task.getStartTime().isAfter(task.getFinishTime())) {
-            throw new ValidationFailedException("The startTime must be no later than the finishTime.");
-        }
         return taskRepository.save(task);
     }
 }

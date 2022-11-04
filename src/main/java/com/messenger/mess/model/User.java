@@ -15,7 +15,7 @@ public class User {
     private String login;
     private String email;
     private String password;
-    @OneToMany(mappedBy = "user")
+    @OneToMany
     private List<Task> tasks;
 
     public Long getId() {

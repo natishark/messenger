@@ -78,7 +78,7 @@ public class TaskControllerIntegrationTests extends IntegrationTests {
         createTaskWithPastFinishDate(LocalDateTime.now());
     }
 
-    public void createTaskWithPastFinishDate(LocalDateTime startTime) throws Exception {
+    private void createTaskWithPastFinishDate(LocalDateTime startTime) throws Exception {
         createInvalidTaskExpectingBadRequestAndMessage(
                 dto -> {
                     dto.setStartTime(startTime);
@@ -89,13 +89,13 @@ public class TaskControllerIntegrationTests extends IntegrationTests {
     }
 
     private static Stream<Arguments> setNullTaskRequiredFields() {
-        Consumer<TaskDto> nullLogin = d -> d.setLogin(null);
-        Consumer<TaskDto> nullTitle = d -> d.setTitle(null);
-        Consumer<TaskDto> nullFinishTime = d -> d.setFinishTime(null);
+        Consumer<TaskDto> setNullLogin = d -> d.setLogin(null);
+        Consumer<TaskDto> setNullTitle = d -> d.setTitle(null);
+        Consumer<TaskDto> setNullFinishTime = d -> d.setFinishTime(null);
         return Stream.of(
-                Arguments.of(nullLogin),
-                Arguments.of(nullTitle),
-                Arguments.of(nullFinishTime)
+                Arguments.of(setNullLogin),
+                Arguments.of(setNullTitle),
+                Arguments.of(setNullFinishTime)
         );
     }
 

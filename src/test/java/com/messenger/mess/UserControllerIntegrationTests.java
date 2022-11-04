@@ -76,7 +76,7 @@ public class UserControllerIntegrationTests extends IntegrationTests {
         );
     }
 
-    protected UserSignUpDto generateRandomUserSignUpDto() {
+    private UserSignUpDto generateRandomUserSignUpDto() {
         UserSignUpDto dto = new UserSignUpDto();
         dto.setLogin(RandomString.make(10));
         dto.setPassword(RandomString.make(20));
