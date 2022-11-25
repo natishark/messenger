@@ -2,7 +2,7 @@ package com.messenger.mess.model;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
-import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "users")
@@ -15,8 +15,22 @@ public class User {
     private String login;
     private String email;
     private String password;
-    @OneToMany
-    private List<Task> tasks;
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "user_friends",
+            joinColumns = @JoinColumn(name = "first_user_id", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name = "second_user_id", referencedColumnName = "id")
+    )
+    private Set<User> friends;
+
+    public Set<User> getFriends() {
+        return friends;
+    }
+
+    public void setFriends(Set<User> friends) {
+        this.friends = friends;
+    }
 
     public Long getId() {
         return id;

@@ -1,5 +1,6 @@
 package com.messenger.mess.controller;
 
+import com.messenger.mess.controller.exception_handling.ResourceAlreadyExistsException;
 import com.messenger.mess.controller.exception_handling.ValidationFailedException;
 import com.messenger.mess.model.User;
 import com.messenger.mess.model.dtos.UserSignUpDto;
@@ -31,7 +32,7 @@ public class UserController {
     @PostMapping("/sign-up")
     public User signUp(@Valid @RequestBody UserSignUpDto signUpDto) {
         if (userService.existsByLogin(signUpDto.getLogin())) {
-            throw new ValidationFailedException("This login is already in use.");
+            throw new ResourceAlreadyExistsException("This login is already in use.");
         }
         if (!signUpDto.getPassword().equals(signUpDto.getPasswordConfirmation())) {
             throw new ValidationFailedException("Password confirmation is incorrect.");

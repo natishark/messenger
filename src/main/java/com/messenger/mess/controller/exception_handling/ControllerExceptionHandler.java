@@ -13,7 +13,19 @@ public class ControllerExceptionHandler {
 
     @ExceptionHandler(ValidationFailedException.class)
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)
-    public String badRequestException(ValidationFailedException e) {
+    public String handleValidationFailedException(ValidationFailedException e) {
+        return e.getMessage();
+    }
+
+    @ExceptionHandler(ResourceAlreadyExistsException.class)
+    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
+    public String handleResourceAlreadyExistsException(ResourceAlreadyExistsException e) {
+        return e.getMessage();
+    }
+
+    @ExceptionHandler(NoSuchUserException.class)
+    @ResponseStatus(value = HttpStatus.NOT_FOUND)
+    public String handleNoSuchUserException(NoSuchUserException e) {
         return e.getMessage();
     }
 
