@@ -25,4 +25,14 @@ public class UserService {
     public Optional<User> findByLogin(String login) {
         return userRepository.findByLogin(login);
     }
+
+    public void addFriend(User firstUser, User secondUser) {
+        addFriendToFirstUser(firstUser, secondUser);
+        addFriendToFirstUser(secondUser, firstUser);
+    }
+
+    private void addFriendToFirstUser(User user, User friend) {
+        user.getFriends().add(friend);
+        saveUser(user);
+    }
 }

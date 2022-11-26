@@ -3,6 +3,7 @@ package com.messenger.mess;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.messenger.mess.model.dtos.UserSignUpDto;
 import com.messenger.mess.model.repository.UserRepository;
+import com.messenger.mess.service.UserService;
 import net.bytebuddy.utility.RandomString;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -10,30 +11,35 @@ import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.function.Consumer;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 public class UserControllerIntegrationTests extends IntegrationTests {
+    private final UserService userService;
 
     @Autowired
     public UserControllerIntegrationTests(
             MockMvc mockMvc,
             ObjectMapper objectMapper,
-            UserRepository userRepository
+            UserRepository userRepository,
+            UserService userService
     ) {
         super(mockMvc, objectMapper, userRepository);
+        this.userService = userService;
     }
 
     @Test
+    @Transactional
     public void signUpCorrectUserTest() throws Exception {
         final var dto = generateRandomUserSignUpDto();
         expectOkSavedAndContentFromRepository(
                 sendSignUpPostRequest(dto),
-                userRepository,
-                user -> user.getLogin().equals(dto.getLogin()),
-                user -> user
+                userService,
+                user -> user,
+                service -> service.findByLogin(dto.getLogin())
         );
     }
 

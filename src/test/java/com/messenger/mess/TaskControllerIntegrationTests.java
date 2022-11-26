@@ -45,8 +45,13 @@ public class TaskControllerIntegrationTests extends IntegrationTests {
         expectOkSavedAndContentFromRepository(
                 sendCreateTaskPostRequest(dto),
                 taskRepository,
-                task -> task.getTitle().equals(dto.getTitle()),
-                task -> conversionService.convert(task, TaskDto.class)
+//                task -> task.getTitle().equals(dto.getTitle()),
+                task -> conversionService.convert(task, TaskDto.class),
+                repository -> repository
+                        .findAll()
+                        .stream()
+                        .filter(task -> task.getTitle().equals(dto.getTitle()))
+                        .findFirst()
         );
     }
 

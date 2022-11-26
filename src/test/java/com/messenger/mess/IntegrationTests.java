@@ -6,14 +6,13 @@ import com.messenger.mess.model.repository.UserRepository;
 import net.bytebuddy.utility.RandomString;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
+import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -56,11 +55,11 @@ public class IntegrationTests {
         expectBadRequestAndMessage(sender.apply(dto), message);
     }
 
-    protected <T extends JpaRepository<E, Long>, E, R> void expectOkSavedAndContentFromRepository(
+    protected <T, E, R> void expectOkSavedAndContentFromRepository(
             ResultActions resultActions,
-            T repository,
-            Predicate<E> isDesiredValue,
-            Function<E, R> savedToExpected
+            T repositoryOrService,
+            Function<E, R> savedToExpected,
+            Function<T, Optional<E>> getResultEntity
     ) throws Exception {
         resultActions
                 .andExpect(status().isOk())
@@ -68,11 +67,7 @@ public class IntegrationTests {
                         content().string(
                                 objectMapper.writeValueAsString(
                                         savedToExpected.apply(
-                                                repository
-                                                        .findAll()
-                                                        .stream()
-                                                        .filter(isDesiredValue)
-                                                        .findFirst()
+                                                getResultEntity.apply(repositoryOrService)
                                                         .orElseThrow(
                                                                 () -> new AssertionError("The saved record was not found")
                                                         )
